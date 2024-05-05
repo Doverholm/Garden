@@ -5,6 +5,20 @@ const LoginButton = () => {
     
     const handleClick = () => {
         soundManager.playClick();
+        console.log("login button clicked");
+        fetch("https://doverholms-demo-dda192623834.herokuapp.com/hello")
+            .then(response => {
+                if (!response) {
+                    throw new Error("Network response not ok");
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+            });
     }
 
     const playHoverSound = () => {
