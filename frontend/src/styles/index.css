@@ -1,0 +1,18 @@
+@font-face {
+  font-family: myFont;
+  src:url('../assets/fonts/retro.ttf');
+}
+
+body {
+  margin: 0px;
+  padding: 0px;
+
+  font-family: myFont;
+
+}
+
+button {
+  background: none;
+  border: none;
+  font-family: myFont;
+}
