@@ -6,7 +6,7 @@ import LoginButton from './Buttons/LoginButton';
 
 import '../MainMenu/MainMenu.css';
 
-const MainMenu = ({ displayOptions, displayCharacter }) => {
+const MainMenu = ({ displayOptions, displayCharacter, displayGameScreen }) => {
 
     return (
         <div className="mainMenu">
@@ -19,7 +19,7 @@ const MainMenu = ({ displayOptions, displayCharacter }) => {
                     <OptionsButton displayOptions={displayOptions} />
                 </div>
                 <div>
-                    <LoginButton />
+                    <LoginButton displayGameScreen={displayGameScreen} />
                 </div>
             </div>
         </div>

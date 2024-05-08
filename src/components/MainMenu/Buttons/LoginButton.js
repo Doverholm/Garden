@@ -1,12 +1,12 @@
 import React from "react";
 import soundManager from "../../../utils/soundManager";
 
-const LoginButton = () => {
+const LoginButton = ({ displayGameScreen }) => {
     
     const handleClick = () => {
         soundManager.playClick();
         console.log("login button clicked");
-        fetch("http://localhost:3001/api/hello")
+        fetch("https://doverholms-garden-f9b37f3b70c4.herokuapp.com/api/hello")
             .then(response => {
                 if (!response) {
                     throw new Error("Network response not ok");
@@ -19,6 +19,8 @@ const LoginButton = () => {
             .catch(error => {
                 console.error("Error fetching data:", error);
             });
+
+        displayGameScreen();
     }
 
     const playHoverSound = () => {
