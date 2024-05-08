@@ -6,7 +6,7 @@ const LoginButton = () => {
     const handleClick = () => {
         soundManager.playClick();
         console.log("login button clicked");
-        fetch("https://doverholms-demo-dda192623834.herokuapp.com/hello")
+        fetch("http://localhost:3001/api/hello")
             .then(response => {
                 if (!response) {
                     throw new Error("Network response not ok");
