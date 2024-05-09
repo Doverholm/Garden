@@ -3,7 +3,7 @@ import io from "socket.io-client";
 
 import "./GameScreen.css";
 
-const socket = io('http://localhost:3001');
+const socket = io('https://doverholms-garden-f9b37f3b70c4.herokuapp.com/');
 
 const GameScreen = () => {
     const canvasRef = useRef(null);
