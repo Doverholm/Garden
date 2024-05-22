@@ -5,7 +5,8 @@ export default class GameRenderer {
         this.loadedImages = imgages;
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        console.log(this.loadedImages);
+
+        this.animationStep = null;
     }
 
     clearCanvas() {
@@ -26,7 +27,42 @@ export default class GameRenderer {
     }
 
     renderPlayer(player) {
+        if (player.animation.animating) {
+            this.animatePlayer(player);
+        } else {
+            this.drawPlayer(player)
+        }
+    }
 
+    animatePlayer(player) {
+        const image = this.loadedImages[player.sprite.name];
+
+
+        if (this.animationStep >= 3) {
+            if (player.animation.currentFrame >= 8) {
+                player.animation.currentFrame = 1;
+            } else {
+                player.animation.currentFrame++;
+            }
+            this.animationStep = 0;
+        }
+        this.ctx.drawImage(
+            image, 
+            player.animation.currentFrame * 112,
+            player.animation.currentFacing * 112, 
+            112, 
+            112, 
+            player.pos.x, 
+            player.pos.y, 
+            112, 
+            112
+        );
+        this.animationStep++;
+    }
+
+    drawPlayer(player) {
+
+        
         //check if player has a sprite
         if (player.sprite) {
             const image = this.loadedImages[player.sprite.name];
@@ -35,14 +71,14 @@ export default class GameRenderer {
             if (player.sprite.type === "sheet") {
                 this.ctx.drawImage(
                     image, 
-                    player.sprite.animation.currentStep * player.sprite.animation.size, 
-                    player.sprite.animation.currentFacing * player.sprite.animation.size, 
-                    player.sprite.animation.size, 
-                    player.sprite.animation.size, 
+                    0, 
+                    player.animation.currentFacing * 112, 
+                    112, 
+                    112, 
                     player.pos.x, 
                     player.pos.y, 
-                    player.sprite.animation.size, 
-                    player.sprite.animation.size
+                    112, 
+                    112
                 );
             } else {
                 this.ctx.drawImage(image, player.pos.x, player.pos.y, player.size.x, player.size.y);

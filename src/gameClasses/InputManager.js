@@ -1,9 +1,8 @@
 
-class InputManager {
+export default class InputManager {
 
-    constructor(socket) {
+    constructor() {
         this.keysPressed = [];
-        this.socket = socket;
         
         this.initEventListeners();
     }
@@ -23,7 +22,7 @@ class InputManager {
         if (validKeys.includes(event.key.toLowerCase()) && !this.keysPressed.includes(event.key.toLowerCase())) {
             this.keysPressed.unshift(event.key.toLowerCase());
         }
-        this.socket.emit('keysInput', this.keysPressed);
+        //console.log(this.keysPressed);
     }
 
     handleKeyUp(event) {
@@ -31,8 +30,7 @@ class InputManager {
         if (index > -1) {
             this.keysPressed.splice(index, 1);
         }
-        this.socket.emit('keysInput', this.keysPressed);
+        //console.log(this.keysPressed);
     }
 
 }
-module.exports = InputManager;
