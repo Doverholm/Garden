@@ -13,35 +13,49 @@ export default class GameRenderer {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    renderObject(object) {
-        //check if object has a sprite
+    renderMap(map, camera) {
+        const image = this.loadedImages[map.spriteName];
+        this.ctx.drawImage(image, map.position.x + camera.adjustmentCenter.x, map.position.y + camera.adjustmentCenter.y);
+    }
+
+    renderImage(imgName) {
+        const image = this.loadedImages[imgName];
+        this.ctx.drawImage(image, 0, 0);
+    }
+
+    renderObject(object, map, camera) {
         if (object.sprite) {
             const image = this.loadedImages[object.sprite.name];
-            this.ctx.drawImage(image, object.pos.x, object.pos.y);
+            this.ctx.drawImage(
+                image,
+                object.pos.x + map.position.x + camera.adjustmentCenter.x,
+                object.pos.y + map.position.y + camera.adjustmentCenter.y
+            );
         } else {
             this.ctx.fillStyle = "red";
-            this.ctx.fillRect(object.pos.x, object.pos.y, object.size.width, object.size.height);
+            this.ctx.fillRect(
+                object.pos.x + map.position.x + camera.adjustmentCenter.x,
+                object.pos.y + map.position.y + camera.adjustmentCenter.y,
+                object.size.width,
+                object.size.height
+            );
         }
     }
 
-    renderPlayer(player) {
-        this.drawPlayer(player)
-    }
-
-    drawPlayer(player) {
+    renderPlayer(player, map, camera) {
         if (player.sprite) {
             const image = this.loadedImages[player.sprite.name];
 
             if (player.sprite.type === "sheet") {
                 this.ctx.drawImage(
-                    image, 
-                    player.animation.currentFrame * 112, 
-                    player.animation.currentFacing * 112, 
-                    112, 
-                    112, 
-                    player.pos.x, 
-                    player.pos.y, 
-                    112, 
+                    image,
+                    player.animation.currentFrame * 112,
+                    player.animation.currentFacing * 112,
+                    112,
+                    112,
+                    player.pos.x + map.position.x + camera.adjustmentCenter.x,
+                    player.pos.y + map.position.y + camera.adjustmentCenter.y,
+                    112,
                     112
                 );
             } else {
@@ -53,9 +67,11 @@ export default class GameRenderer {
         }
     }
 
-    renderImage(imgName) {
-        const image = this.loadedImages[imgName];
-        this.ctx.drawImage(image, 0, 0);
+    drawCrosshair(camera) {
+        const thicness = 1;
+        this.ctx.fillStyle = 'red';
+        this.ctx.fillRect(0, camera.screenSize.height / 2, camera.screenSize.width, thicness);
+        this.ctx.fillRect(camera.screenSize.width / 2, 0, thicness, camera.screenSize.height);
     }
 
 }

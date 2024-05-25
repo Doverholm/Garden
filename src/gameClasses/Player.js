@@ -127,7 +127,7 @@ export default class Player extends GameObject {
 
             if (this.animation.step === 3) {
                 if (this.animation.currentFrame === 8) {
-                    this.animation.currentFrame = 1;
+                    this.animation.currentFrame = 0;
                 } else {
                     this.animation.currentFrame++;
                 }
@@ -136,6 +136,8 @@ export default class Player extends GameObject {
                 this.animation.step++;
             }
             
+        } else {
+            this.animation.currentFrame = 0;
         }
     }
 

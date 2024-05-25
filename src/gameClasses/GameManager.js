@@ -3,9 +3,10 @@ import io from 'socket.io-client';
 
 import GameRenderer from './GameRenderer';
 import InputManager from './InputManager';
+import Camera from './Camera';
 import Player from './Player';
 
-const socketUrl = process.env.REACT_APP_SOCKET_URL || 'https://doverholms-garden-f9b37f3b70c4.herokuapp.com/';
+const socketUrl = 'https://doverholms-garden-f9b37f3b70c4.herokuapp.com/';
 
 export default class GameManager {
 
@@ -60,6 +61,7 @@ export default class GameManager {
             .then(() => this.initGameState())
             .then(() => this.initGameRenderer())
             .then(() => this.initInputManager())
+            .then(() => this.initCamera())
             .then(() => this.socketListener())
             .then(() => this.startGameLoop())
             .catch(err => console.log(err));
@@ -174,6 +176,15 @@ export default class GameManager {
         console.log('InputManager initialized');
     }
 
+    initCamera() {
+        this.camera = new Camera();
+        this.camera.screenSize.width = this.canvas.width;
+        this.camera.screenSize.height = this.canvas.height;
+        this.camera.adjustmentCenter.x = this.camera.screenSize.width / 2;
+        this.camera.adjustmentCenter.y = this.camera.screenSize.height / 2;
+        this.camera.setCameraPosition(320, 320, this.gameState.map);
+    }
+
     //GAMELOOP
     startGameLoop() {
         console.log('Gameloop started');
@@ -189,6 +200,12 @@ export default class GameManager {
         if (!this.gameLoopRunning) return;
 
         this.updatePlayer();
+        this.camera.target(
+            this.gameState.players.get(this.socket.id).pos.x + 56,
+            this.gameState.players.get(this.socket.id).pos.y + 56,
+            this.gameState.map
+        );
+
         this.renderGame();
         this.sendPlayerStateToServer();
 
@@ -201,16 +218,17 @@ export default class GameManager {
 
     renderGame() {
         this.renderer.clearCanvas();
-        this.renderer.renderImage('MAP-garden');
+        this.renderer.renderMap(this.gameState.map, this.camera);
 
-        this.gameState.objects.forEach((value, key) => {
-            this.renderer.renderObject(value);
+        this.gameState.objects.forEach((object) => {
+            this.renderer.renderObject(object, this.gameState.map, this.camera);
         });
 
-        this.gameState.players.forEach((value, key) => {
-            this.renderer.renderPlayer(value);
+        this.gameState.players.forEach((player) => {
+            this.renderer.renderPlayer(player, this.gameState.map, this.camera);
         });
 
+        //this.renderer.drawCrosshair(this.camera);
     }
 
     sendPlayerStateToServer() {
