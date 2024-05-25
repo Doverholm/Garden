@@ -2,35 +2,31 @@
 export default class InputManager {
 
     constructor() {
-        this.keysPressed = [];
-        
+        this.keysPressed = new Set();
+        this.validKeys = new Set(['w', 'a', 's', 'd']);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleKeyUp = this.handleKeyUp.bind(this);
         this.initEventListeners();
     }
 
     initEventListeners() {
-        document.addEventListener('keydown', this.handleKeyDown.bind(this));
-        document.addEventListener('keyup', this.handleKeyUp.bind(this));
+        document.addEventListener('keydown', this.handleKeyDown);
+        document.addEventListener('keyup', this.handleKeyUp);
     }
 
     removeEventListeners() {
-        document.removeEventListener('keydown');
-        document.removeEventListener('keyup');
+        document.removeEventListener('keydown', this.handleKeyDown);
+        document.removeEventListener('keyup', this.handleKeyUp);
     }
 
     handleKeyDown(event) {
-        const validKeys = ['w', 'a', 's', 'd'];
-        if (validKeys.includes(event.key.toLowerCase()) && !this.keysPressed.includes(event.key.toLowerCase())) {
-            this.keysPressed.unshift(event.key.toLowerCase());
+        if (this.validKeys.has(event.key) && this.keysPressed.size < 2) {
+            this.keysPressed.add(event.key);
         }
-        //console.log(this.keysPressed);
     }
 
     handleKeyUp(event) {
-        let index = this.keysPressed.indexOf(event.key.toLowerCase());
-        if (index > -1) {
-            this.keysPressed.splice(index, 1);
-        }
-        //console.log(this.keysPressed);
+        this.keysPressed.delete(event.key);
     }
 
 }

@@ -3,7 +3,6 @@ import io from 'socket.io-client';
 
 import GameRenderer from './GameRenderer';
 import InputManager from './InputManager';
-import GameObject from './GameObject';
 import Player from './Player';
 
 const socketUrl = process.env.REACT_APP_SOCKET_URL || 'https://doverholms-garden-f9b37f3b70c4.herokuapp.com/';
@@ -40,10 +39,10 @@ export default class GameManager {
         });
 
         this.socket.on('newPlayerState', (newState) => {
-            if (newState.id != this.socket.id) {
+            if (newState.id != this.socket.id && newState.stamp > this.gameState.players.get(newState.id).prevStamp) {
                 this.gameState.players.get(newState.id).pos = newState.pos;
                 this.gameState.players.get(newState.id).animation = newState.animation;
-
+                this.gameState.players.get(newState.id).prevStamp = newState.stamp;
             }
         });
 
@@ -89,7 +88,7 @@ export default class GameManager {
 
                 imageMetaData.forEach((url, name) => {
                     const img = new Image();
-                    img.src = "http://localhost:3001/" + url;
+                    img.src = "https://doverholms-garden-f9b37f3b70c4.herokuapp.com/" + url;
 
                     img.onload = () => {
                         loadedSprites[name] = img;
@@ -217,6 +216,7 @@ export default class GameManager {
     sendPlayerStateToServer() {
         this.socket.emit('newPlayerState', {
             id: this.socket.id,
+            stamp: Date.now(),
             pos: this.gameState.players.get(this.socket.id).pos,
             animation: this.gameState.players.get(this.socket.id).animation
         });

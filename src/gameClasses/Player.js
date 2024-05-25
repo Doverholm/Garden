@@ -34,17 +34,30 @@ const keyCombinations = {
     }
 }
 
+const DirectionVectors = {
+    N: { x: 0, y: -1, facing: 0 },
+    NE: { x: 0.7071, y: -0.7071, facing: null },
+    E: { x: 1, y: 0, facing: 3 },
+    SE: { x: 0.7071, y: 0.7071, facing: null },
+    S: { x: 0, y: 1, facing: 2 },
+    SW: { x: -0.7071, y: 0.7071, facing: null },
+    W: { x: -1, y: 0, facing: 1 },
+    NW: { x: -0.7071, y: -0.7071, facing: null },
+};
+
 export default class Player extends GameObject {
 
     constructor(config) {
         super(config);
         this.size.height = 100;
 
+        this.prevStamp = Date.now();
+
         this.direction = Direction.S;
         this.isMoving = false;
         this.velocity = { x: 0, y: 0 };
         this.speed = 0;
-        this.maxSpeed = 2.5;
+        this.maxSpeed = 2.3;
         this.acceleration = 0.5;
         this.friction = 0.75;
 
@@ -52,96 +65,51 @@ export default class Player extends GameObject {
             animating: false,
             currentFrame: null,
             currentFacing: null,
-            size: null
+            step: 0
         }
 
     }
 
     updatePlayer(keys) {
-        this.updateDirection(keys);
-        this.updateVelocity(keys);
+        if (keys.size > 0) {
+            this.isMoving = true;
+            this.updateDirection(keys);
+            this.updateVelocity();
+        } else {
+            this.isMoving = false;
+            this.velocity.x = 0;
+            this.velocity.y = 0;
+        }
         this.updatePos();
-        this.checkAnimation();
-        //console.log(this.animation.animating);
+        this.animate();
     }
 
-    updateDirection(arr) {
-        if (arr.length === 1 && keyCombinations[arr[0]]) {
+    updateDirection(set) {
+        let arr = Array.from(set);
+        let length = arr.length;
+        if (length === 1) {
             this.direction = keyCombinations[arr[0]].direction;
-        } else if (arr.length > 1 && keyCombinations[arr[1]] && keyCombinations[arr[1]][arr[0]]) {
-            this.direction = keyCombinations[arr[1]][arr[0]];
+        } else if (length === 2 && keyCombinations[arr[length - 2]][arr[length - 1]]) {
+            this.direction = keyCombinations[arr[length - 2]][arr[length - 1]];
+        } else {
+            this.direction = keyCombinations[arr[length - 1]].direction;
         }
     }
 
-    updateVelocity(arr) {
-        if (arr[0] !== undefined) {
-            this.isMoving = true;
-            this.velocity.x = 0;
-            this.velocity.y = 0;
-
-            switch (this.direction) {
-                case 'NE':
-                    this.velocity.x = 1 * 0.7071;
-                    this.velocity.y = 1 * -0.7071;
-                    break;
-                case 'E':
-                    this.velocity.x = 1;
-
-                    //Update Sprite Direction
-                    this.animation.currentFacing = 3;
-                    break;
-                case 'SE':
-                    this.velocity.x = 1 * 0.7071;
-                    this.velocity.y = 1 * 0.7071;
-                    break;
-                case 'S':
-                    this.velocity.y = 1;
-
-                    //Update Sprite Direction
-                    this.animation.currentFacing = 2;
-                    break;
-                case 'SW':
-                    this.velocity.x = 1 * -0.7071;
-                    this.velocity.y = 1 * 0.7071;
-                    break;
-                case 'W':
-                    this.velocity.x = -1;
-
-                    //Update Sprite Direction
-                    this.animation.currentFacing = 1;
-
-                    break;
-                case 'NW':
-                    this.velocity.x = 1 * -0.7071;
-                    this.velocity.y = 1 * -0.7071;
-                    break;
-                case 'N':
-                    this.velocity.y = -1;
-
-                    //Update Sprite Direction
-                    this.animation.currentFacing = 0;
-                    break;
-                default:
-            }
-        } else {
-            this.isMoving = false;
+    updateVelocity() {
+        const directionVector = DirectionVectors[this.direction];
+        this.velocity.x = directionVector.x;
+        this.velocity.y = directionVector.y;
+        if (directionVector.facing !== null) {
+            this.animation.currentFacing = directionVector.facing;
         }
     }
 
     updatePos() {
-        //console.log(this.speed);
         if (this.isMoving) {
-            if (this.speed >= this.maxSpeed) {
-                this.speed = this.maxSpeed;
-            } else {
-                this.speed = this.speed + this.acceleration;
-            }
+            this.speed = Math.min(this.speed + this.acceleration, this.maxSpeed);
         } else {
-            if (this.speed < 0.02) {
-                this.speed = 0;
-            } else {
-                this.speed = this.speed * this.friction;
-            } 
+            this.speed = this.speed < 0.02 ? 0: this.speed * this.friction;
         }
 
         const magnitude = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
@@ -150,14 +118,25 @@ export default class Player extends GameObject {
             this.velocity.y /= magnitude;
         }
 
-        const x = this.pos.x + this.velocity.x * this.speed;
-        const y = this.pos.y + this.velocity.y * this.speed;
-        this.pos.x = x;
-        this.pos.y = y;
+        this.pos.x = this.pos.x + this.velocity.x * this.speed;
+        this.pos.y = this.pos.y + this.velocity.y * this.speed;
     }
 
-    checkAnimation() {
-        this.animation.animating = this.speed > 0.5;
+    animate() {
+        if (this.speed > 0.5) {
+
+            if (this.animation.step === 3) {
+                if (this.animation.currentFrame === 8) {
+                    this.animation.currentFrame = 1;
+                } else {
+                    this.animation.currentFrame++;
+                }
+                this.animation.step = 0;
+            } else {
+                this.animation.step++;
+            }
+            
+        }
     }
 
 }
